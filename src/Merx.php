@@ -218,6 +218,16 @@ class Merx
                 'template' => 'order',
                 'model' => 'order',
                 'content' => $data,
+                
+                // fix as suggested in https://github.com/wagnerwagner/merx/issues/51
+                // modification start
+                'translations' => [
+                    kirby()->languageCode() => [
+                        'code' => kirby()->languageCode(),
+                        'content' => $data
+                    ]
+                ]
+                // modification end
             ]);
 
             // check for validation errors
