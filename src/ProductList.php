@@ -2,9 +2,9 @@
 
 namespace Wagnerwagner\Merx;
 
-use Wagnerwagner\Merx\Merx;
-use Kirby\Toolkit\Collection;
 use Kirby\Toolkit\A;
+use Kirby\Toolkit\Collection;
+use Wagnerwagner\Merx\Merx;
 
 /**
  * [
@@ -18,7 +18,6 @@ use Kirby\Toolkit\A;
  *   ]
  * ]
  */
-
 
 class ProductList extends Collection
 {
@@ -47,7 +46,6 @@ class ProductList extends Collection
         return $this;
     }
 
-
     /**
      * Updates existing ProductList item
      *
@@ -74,7 +72,6 @@ class ProductList extends Collection
         }
         return $this;
     }
-
 
     /**
      * Sets title, price and tax automagically if $key is a valid page slug.
@@ -106,7 +103,7 @@ class ProductList extends Collection
                 $value['price'] = $page->price()->toFloat();
             }
             if (!isset($value['taxRate'])) {
-                $value['taxRate'] = $page->tax()->exists() ? $page->tax()->toFloat() : 0;
+                $value['taxRate'] = $page->taxRate()->exists() ? $page->taxRate()->toFloat() : 0;
             }
             if (!isset($value['template'])) {
                 $value['template'] = $page->intendedTemplate()->name();
@@ -124,7 +121,7 @@ class ProductList extends Collection
                     is_string($field) ||
                     (is_object($field) && method_exists($field, '__toString'))
                 ) {
-                    $value[$fieldName] = (string)$field;
+                    $value[$fieldName] = (string) $field;
                 }
             }
         }
@@ -138,8 +135,8 @@ class ProductList extends Collection
             $value['tax'] = Merx::calculateTax($value['price'], $value['taxRate']);
         }
 
-        $value['sum'] = (float)($value['price'] * $value['quantity']);
-        $value['sumTax'] = (float)($value['tax'] * $value['quantity']);
+        $value['sum'] = (float) ($value['price'] * $value['quantity']);
+        $value['sumTax'] = (float) ($value['tax'] * $value['quantity']);
 
         if ($value['quantity'] < 0) {
             throw new \Exception('The quantity of the cart must not be negative.');
@@ -158,7 +155,6 @@ class ProductList extends Collection
         }
     }
 
-
     /**
      * Tax of all items.
      */
@@ -166,11 +162,10 @@ class ProductList extends Collection
     {
         $tax = 0.0;
         foreach ($this->data() as $item) {
-            $tax += (float)$item['quantity'] * ((float)$item['tax'] ?? 0);
+            $tax += (float) $item['quantity'] * ((float) $item['tax'] ?? 0);
         }
         return $tax;
     }
-
 
     /**
      * Taxes grouped by tax rate
@@ -180,25 +175,24 @@ class ProductList extends Collection
     {
         $taxRates = array_unique($this->pluck('taxRate'));
         $taxRates = array_filter($taxRates, function ($taxRate) {
-            return (float)$taxRate !== (float)0;
+            return (float) $taxRate !== (float) 0;
         });
         sort($taxRates);
         $taxRates = array_map(function ($taxRate) {
             $sum = 0;
             foreach ($this->data() as $item) {
                 if ($item['taxRate'] === $taxRate) {
-                    $sum += (float)$item['sumTax'];
+                    $sum += (float) $item['sumTax'];
                 }
             }
             return [
-                'taxRate' => (float)$taxRate,
-                'sum' => (float)$sum,
+                'taxRate' => (float) $taxRate,
+                'sum' => (float) $sum,
             ];
         }, $taxRates);
 
         return $taxRates;
     }
-
 
     /**
      * Sum of all items including tax.
@@ -207,11 +201,10 @@ class ProductList extends Collection
     {
         $sum = 0.0;
         foreach ($this->data() as $item) {
-            $sum += (float)$item['quantity'] * (float)$item['price'];
+            $sum += (float) $item['quantity'] * (float) $item['price'];
         }
         return $sum;
     }
-
 
     /**
      * Formats price, tax and sum.
@@ -219,10 +212,10 @@ class ProductList extends Collection
     public function getFormattedItems(): array
     {
         return array_map(function ($item) {
-            $item['price'] = Merx::formatPrice((float)$item['price']);
-            $item['tax'] = Merx::formatPrice((float)$item['tax']);
-            $item['sum'] = Merx::formatPrice((float)($item['sum']));
-            $item['sumTax'] = Merx::formatPrice((float)($item['sumTax']));
+            $item['price'] = Merx::formatPrice((float) $item['price']);
+            $item['tax'] = Merx::formatPrice((float) $item['tax']);
+            $item['sum'] = Merx::formatPrice((float) ($item['sum']));
+            $item['sumTax'] = Merx::formatPrice((float) ($item['sumTax']));
             return $item;
         }, $this->values());
     }
